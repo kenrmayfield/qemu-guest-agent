@@ -2,11 +2,75 @@
 
 QEMU Guest Agent version for FreeBSD guest
 
-## WARNING!!!
+#### WARNING!!!
 
 This port provides "as is". Some commands is not working, for example "fsfreeze". We try to make a patches for vcpu and fs features at FreeBSD.
 Command reference and current command support status in FreeBSD can be found [here](https://github.com/aborche/qemu-guest-agent/blob/master/supported_command_reference.md)
 Be Careful. Port builds without any docs.
+
+===========================================================
+
+Qemu Guest Agent Install FreeBSD:
+
+https://www.freshports.org/emulators/qemu-guest-agent
+
+#### Install Package - Choose either one:
+     Option 1: pkg install emulators/qemu-guest-agent 
+     Option 2.: pkg install qemu-guest-agent
+============================================================
+
+#### Prerequisite - After Qemu Guest Agent Install:
+
+#### Run following command in Console:
+
+     kldload virtio_console
+
+#### For permanent loading virtio_console driver add next line to /boot/loader.conf:
+
+     virtio_console_load="YES"     
+     NOTE: Virtual Console Driver/Agent Loads in /dev/vtcon/org.qemu.guest_agent.0
+
+#### Modify your `/etc/rc.conf` by adding these settings:
+
+     qemu_guest_agent_enable="YES"
+     qemu_guest_agent_flags="-d -v -l /var/log/qemu-ga.log"
+     NOTE:  There are Spaces between -d -v -l
+
+
+#### Run:
+     service qemu-guest-agent start
+============================================================
+
+#### A. Extra Steps to get Qemu Guest Agent Working - This is a System Configuration Startup file :
+    
+    1. Create a Directory in /usr/local/etc/ called qemu
+    2. Create File called qemu-ga.conf  using Vi Editor
+        Edit qemu-ga.conf with:
+        # qemu-ga configuration 
+        [general]
+        daemonize = 0
+        pidfile = /var/run/qemu-ga.pid
+        verbose = 0
+        method = virtio-serial
+        path = /dev/vtcon/org.qemu.guest_agent.0
+        statedir = /var/run
+
+#### B. Create a PID File - This is Referenced in qemu-ga.conf:
+     1. Create in /var/run/ qemu-ga.pid
+         NOTE:  Leave the File Blank
+                Check to see if the File is Already Created due too
+                Starting the Agent from earlier steps.
+
+#### C. Enable the Service for Qemu Guest Agent to Automatically Start:
+     1. service qemu-guest-agent enable
+         NOTE:  Permanent Automatic Start of the Guest Agent
+     2. service qemu-guest-agent start
+         NOTE: Starts and Runs until a Reboot 
+
+#### D. Check Qemu Guest Agent Status:
+     1. service qemu-guest-agent status
+
+============================================================
 
 ## Supported systems
 
